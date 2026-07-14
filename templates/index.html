@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Krishi Mitra — AI Smart Farming Advisor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- ═══════════════════════ NAVBAR ════════════════════════════════ -->
+<nav class="navbar navbar-expand-lg navbar-dark km-navbar sticky-top">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span class="brand-icon">🌱</span>
+      <span class="brand-name fw-bold">Krishi Mitra</span>
+      <span class="brand-badge badge rounded-pill ms-1">AI</span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item">
+          <a class="nav-link active" href="/"><i class="bi bi-chat-dots me-1"></i>Advisor</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="showSection('crops')">
+            <i class="bi bi-flower2 me-1"></i>Crops</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="showSection('weather')">
+            <i class="bi bi-cloud-sun me-1"></i>Weather</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="showSection('mandi')">
+            <i class="bi bi-currency-rupee me-1"></i>Mandi</a>
+        </li>
+        <li class="nav-item ms-2">
+          <button class="btn btn-sm btn-outline-light" onclick="toggleDarkMode()">
+            <i class="bi bi-moon-stars" id="darkModeIcon"></i>
+          </button>
+        </li>
+        <li class="nav-item ms-1">
+          <button class="btn btn-sm km-btn-accent" onclick="showSection('profile')">
+            <i class="bi bi-person-circle me-1"></i>Profile
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO BANNER ══════════════════════════════ -->
+<section class="km-hero d-flex align-items-center" id="heroSection">
+  <div class="container">
+    <div class="row align-items-center gy-4">
+      <div class="col-lg-6">
+        <div class="hero-badge mb-3">
+          <span class="badge km-badge-ibm me-2">
+            <i class="bi bi-cpu-fill me-1"></i>IBM watsonx.ai
+          </span>
+          <span class="badge km-badge-granite">
+            <i class="bi bi-stars me-1"></i>Granite AI
+          </span>
+        </div>
+        <h1 class="display-5 fw-bold hero-title mb-3">
+          {{ agent_name }}<br/>
+          <span class="hero-subtitle">{{ agent_tagline }}</span>
+        </h1>
+        <p class="lead text-muted mb-4">
+          AI-powered farming guidance in your language — crop recommendations,
+          soil health, weather advisory, mandi prices, and government schemes.
+          Trusted by farmers across India. 🇮🇳
+        </p>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          <button class="btn km-btn-primary" onclick="scrollToChat()">
+            <i class="bi bi-chat-dots-fill me-2"></i>Start Chatting
+          </button>
+          <button class="btn btn-outline-success" onclick="showSection('crops')">
+            <i class="bi bi-flower2 me-2"></i>Get Crop Advice
+          </button>
+          <button class="btn btn-outline-secondary" href="/dashboard">
+            <i class="bi bi-speedometer2 me-2"></i><a href="/dashboard" class="text-decoration-none text-inherit">Dashboard</a>
+          </button>
+        </div>
+        <div class="hero-stats d-flex flex-wrap gap-3">
+          <div class="stat-chip"><i class="bi bi-translate text-success me-1"></i>11 Languages</div>
+          <div class="stat-chip"><i class="bi bi-shield-check text-primary me-1"></i>IBM Secure AI</div>
+          <div class="stat-chip"><i class="bi bi-geo-alt text-warning me-1"></i>Pan-India</div>
+          <div class="stat-chip"><i class="bi bi-book text-info me-1"></i>RAG Powered</div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+        <div class="hero-illustration">
+          <div class="farm-card-float">
+            <div class="farm-anim">
+              <div class="crop-row">
+                <span class="crop-plant">🌾</span><span class="crop-plant">🌾</span>
+                <span class="crop-plant">🌾</span><span class="crop-plant">🌾</span>
+                <span class="crop-plant">🌾</span>
+              </div>
+              <div class="crop-row">
+                <span class="crop-plant">🌱</span><span class="crop-plant">🌿</span>
+                <span class="crop-plant">🌱</span><span class="crop-plant">🌿</span>
+                <span class="crop-plant">🌱</span>
+              </div>
+              <div class="status-pills mt-3">
+                <span class="pill pill-green">🌤️ Weather: Good</span>
+                <span class="pill pill-blue">💧 Irrigation: On track</span>
+                <span class="pill pill-yellow">📈 Wheat MSP: ₹2,275</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FEATURE CARDS ════════════════════════════ -->
+<section class="km-features py-4 bg-light" id="featuresSection">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="feature-card text-center p-3 h-100" onclick="showSection('crops')">
+          <div class="feature-icon">🌾</div>
+          <div class="feature-label">Crop Advisor</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="feature-card text-center p-3 h-100" onclick="showSection('soil')">
+          <div class="feature-icon">🌍</div>
+          <div class="feature-label">Soil Health</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="feature-card text-center p-3 h-100" onclick="showSection('weather')">
+          <div class="feature-icon">🌦️</div>
+          <div class="feature-label">Weather Advisory</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="feature-card text-center p-3 h-100" onclick="showSection('mandi')">
+          <div class="feature-icon">💰</div>
+          <div class="feature-label">Mandi Prices</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="feature-card text-center p-3 h-100" onclick="quickChat('Tell me about government schemes for farmers')">
+          <div class="feature-icon">📋</div>
+          <div class="feature-label">Govt Schemes</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="feature-card text-center p-3 h-100" onclick="quickChat('Give me organic farming and ZBNF tips')">
+          <div class="feature-icon">🌿</div>
+          <div class="feature-label">Organic Farming</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MAIN CONTENT AREA ════════════════════════ -->
+<main class="container my-4" id="mainContent">
+  <div class="row g-4">
+
+    <!-- LEFT SIDEBAR: Profile quick view + Quick Questions -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="sidebar-card mb-3" id="profileMiniCard">
+        <div class="sidebar-card-header">
+          <i class="bi bi-person-circle me-2 text-success"></i>Farmer Profile
+        </div>
+        <div class="sidebar-card-body" id="profileMiniBody">
+          <div class="text-muted small mb-2">Set up your profile for personalised advice</div>
+          <button class="btn btn-sm km-btn-primary w-100" onclick="showSection('profile')">
+            <i class="bi bi-pencil me-1"></i>Setup Profile
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-card mb-3">
+        <div class="sidebar-card-header">
+          <i class="bi bi-lightning-fill me-2 text-warning"></i>Quick Questions
+        </div>
+        <div class="sidebar-card-body p-0">
+          <div class="quick-list">
+            <div class="quick-item" onclick="quickChat('What crops should I grow this Kharif season?')">
+              🌾 Best Kharif crops?
+            </div>
+            <div class="quick-item" onclick="quickChat('How to improve soil health naturally?')">
+              🌍 Improve soil health
+            </div>
+            <div class="quick-item" onclick="quickChat('What is the MSP for wheat this year?')">
+              💰 Wheat MSP 2024-25?
+            </div>
+            <div class="quick-item" onclick="quickChat('How to control aphids in wheat organically?')">
+              🐛 Aphid control in wheat
+            </div>
+            <div class="quick-item" onclick="quickChat('How to save water with drip irrigation?')">
+              💧 Drip irrigation tips
+            </div>
+            <div class="quick-item" onclick="quickChat('Explain PM-KISAN scheme eligibility')">
+              📋 PM-KISAN eligibility
+            </div>
+            <div class="quick-item" onclick="quickChat('Best organic fertilizer for rice crop?')">
+              🌿 Organic fertilizer for rice
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">
+          <i class="bi bi-translate me-2 text-primary"></i>Language
+        </div>
+        <div class="sidebar-card-body">
+          <select class="form-select form-select-sm" id="langSelect" onchange="setLanguage(this.value)">
+            <option value="en">🇬🇧 English</option>
+            <option value="hi">🇮🇳 हिंदी (Hindi)</option>
+            <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+            <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+            <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+            <option value="mr">🇮🇳 मराठी (Marathi)</option>
+            <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+            <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+            <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTRE: Chat + Dynamic Panels -->
+    <div class="col-12 col-lg-9">
+
+      <!-- ── CHAT SECTION ──────────────────────────────────────── -->
+      <div id="section-chat" class="content-section active">
+        <div class="chat-container" id="chatContainer">
+          <!-- Chat Header -->
+          <div class="chat-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <div class="agent-avatar">🌱</div>
+              <div>
+                <div class="fw-semibold">Krishi Mitra</div>
+                <div class="text-muted small" id="agentStatus">
+                  <span class="status-dot bg-success"></span> AI Advisor Online
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" onclick="downloadPDF()" title="Download PDF">
+                <i class="bi bi-file-earmark-pdf"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="clearHistory()" title="Clear chat">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chat Messages -->
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-date-divider"><span>Today</span></div>
+            <div class="msg-row msg-bot">
+              <div class="msg-avatar">🌱</div>
+              <div class="msg-bubble msg-bubble-bot">
+                <div class="msg-header">Krishi Mitra <span class="msg-time">just now</span></div>
+                <p class="mb-2">🙏 <strong>Jai Kisan! Welcome to Krishi Mitra</strong> — your AI Smart Farming Advisor powered by IBM watsonx.ai and IBM Granite.</p>
+                <p class="mb-2">I can help you with:</p>
+                <div class="greeting-chips">
+                  <span class="chip" onclick="quickChat('What crops should I grow this season?')">🌾 Crop Recommendations</span>
+                  <span class="chip" onclick="quickChat('Analyse my soil health and give advice')">🌍 Soil Health Analysis</span>
+                  <span class="chip" onclick="quickChat('Give weather based farming advice')">🌦️ Weather Advisory</span>
+                  <span class="chip" onclick="quickChat('Show mandi prices and MSP')">💰 Mandi Prices</span>
+                  <span class="chip" onclick="quickChat('What government schemes am I eligible for?')">📋 Government Schemes</span>
+                  <span class="chip" onclick="quickChat('Help me with pest management')">🐛 Pest Control</span>
+                </div>
+                <p class="mt-2 mb-0 text-muted small">
+                  💡 Set up your <strong>Farmer Profile</strong> for personalised recommendations!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+              <button class="btn-icon voice-btn" id="voiceBtn" onclick="toggleVoiceInput()"
+                      title="Voice input">
+                <i class="bi bi-mic-fill"></i>
+              </button>
+              <textarea class="chat-input" id="chatInput" rows="1"
+                        placeholder="Ask Krishi Mitra anything about farming..."
+                        onkeydown="handleKeydown(event)"
+                        oninput="autoResize(this)"></textarea>
+              <button class="btn-icon send-btn" id="sendBtn" onclick="sendMessage()">
+                <i class="bi bi-send-fill"></i>
+              </button>
+            </div>
+            <div class="chat-input-footer">
+              <span class="text-muted small">
+                <i class="bi bi-shield-check me-1 text-success"></i>
+                Powered by IBM Granite · Responses may vary · Verify with local KVK
+              </span>
+              <button class="btn btn-link btn-sm text-muted p-0" onclick="downloadPDF()">
+                <i class="bi bi-download me-1"></i>Save Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CROP RECOMMENDATIONS SECTION ──────────────────────── -->
+      <div id="section-crops" class="content-section">
+        <div class="panel-container">
+          <div class="panel-header">
+            <h5 class="mb-0"><span class="me-2">🌾</span>Crop Recommendation System</h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('chat')">
+              <i class="bi bi-arrow-left me-1"></i>Back to Chat
+            </button>
+          </div>
+          <div class="panel-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Soil Type</label>
+                <select class="form-select" id="cropSoilType">
+                  <option>Loam</option>
+                  <option>Black (Vertisol)</option>
+                  <option>Alluvial</option>
+                  <option>Red Laterite</option>
+                  <option>Sandy</option>
+                  <option>Clay</option>
+                  <option>Saline/Alkaline</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Season</label>
+                <select class="form-select" id="cropSeason">
+                  <option>Kharif (Jun–Oct)</option>
+                  <option>Rabi (Oct–Mar)</option>
+                  <option>Zaid (Mar–Jun)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">State / Region</label>
+                <select class="form-select" id="cropState">
+                  <option>Punjab</option><option>Haryana</option>
+                  <option>Uttar Pradesh</option><option>Maharashtra</option>
+                  <option>Karnataka</option><option>Andhra Pradesh</option>
+                  <option>Telangana</option><option>Tamil Nadu</option>
+                  <option>Gujarat</option><option>Rajasthan</option>
+                  <option>Madhya Pradesh</option><option>West Bengal</option>
+                  <option>Bihar</option><option>Odisha</option>
+                  <option>Assam</option><option>Jharkhand</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Water Availability</label>
+                <select class="form-select" id="cropIrrigation">
+                  <option>Irrigated</option>
+                  <option>Rainfed</option>
+                  <option>Limited Irrigation</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Rainfall Pattern</label>
+                <select class="form-select" id="cropRainfall">
+                  <option>High (&gt;1000mm)</option>
+                  <option>Medium (600-1000mm)</option>
+                  <option>Low (&lt;600mm)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Land Size (acres)</label>
+                <input type="number" class="form-control" id="cropLandSize"
+                       placeholder="e.g. 5" min="0.5" step="0.5" />
+              </div>
+              <div class="col-12">
+                <button class="btn km-btn-primary w-100 py-2" onclick="getCropRecommendations()">
+                  <i class="bi bi-stars me-2"></i>Get AI Crop Recommendations
+                </button>
+              </div>
+            </div>
+            <div id="cropResult" class="result-box mt-4 d-none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SOIL HEALTH SECTION ────────────────────────────────── -->
+      <div id="section-soil" class="content-section">
+        <div class="panel-container">
+          <div class="panel-header">
+            <h5 class="mb-0"><span class="me-2">🌍</span>Soil Health Analysis</h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('chat')">
+              <i class="bi bi-arrow-left me-1"></i>Back
+            </button>
+          </div>
+          <div class="panel-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Soil pH Level</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="soilPH"
+                         min="4" max="10" step="0.1" value="6.5"
+                         oninput="document.getElementById('phVal').textContent=this.value">
+                  <span class="badge km-badge-ph" id="phVal">6.5</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                  <span>4 (Acidic)</span><span>7 (Neutral)</span><span>10 (Alkaline)</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Soil Type</label>
+                <select class="form-select" id="soilType">
+                  <option>Loam</option><option>Black</option>
+                  <option>Alluvial</option><option>Red Laterite</option>
+                  <option>Sandy</option><option>Clay</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Nitrogen (N)</label>
+                <select class="form-select" id="soilN">
+                  <option>Low</option><option selected>Medium</option><option>High</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Phosphorus (P)</label>
+                <select class="form-select" id="soilP">
+                  <option>Low</option><option selected>Medium</option><option>High</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Potassium (K)</label>
+                <select class="form-select" id="soilK">
+                  <option>Low</option><option selected>Medium</option><option>High</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Organic Carbon</label>
+                <select class="form-select" id="soilOC">
+                  <option>Low (&lt;0.5%)</option>
+                  <option selected>Medium (0.5-0.75%)</option>
+                  <option>High (&gt;0.75%)</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <button class="btn km-btn-primary w-100 py-2" onclick="analyzeSoil()">
+                  <i class="bi bi-stars me-2"></i>Analyse Soil Health
+                </button>
+              </div>
+            </div>
+            <div id="soilResult" class="mt-4 d-none">
+              <div class="soil-score-card mb-3">
+                <div class="score-label">Soil Health Score</div>
+                <div class="score-circle" id="soilScoreCircle">
+                  <span id="soilScoreVal">--</span>
+                  <small>/100</small>
+                </div>
+                <div class="score-bar-wrapper">
+                  <div class="score-bar" id="soilScoreBar"></div>
+                </div>
+              </div>
+              <div class="result-box" id="soilAnalysisText"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WEATHER ADVISORY SECTION ──────────────────────────── -->
+      <div id="section-weather" class="content-section">
+        <div class="panel-container">
+          <div class="panel-header">
+            <h5 class="mb-0"><span class="me-2">🌦️</span>Weather-Based Farming Advisory</h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('chat')">
+              <i class="bi bi-arrow-left me-1"></i>Back
+            </button>
+          </div>
+          <div class="panel-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Your Location / District</label>
+                <input type="text" class="form-control" id="weatherLocation"
+                       placeholder="e.g. Ludhiana, Pune, Warangal" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Current Crop (optional)</label>
+                <input type="text" class="form-control" id="weatherCrop"
+                       placeholder="e.g. Wheat, Rice, Cotton" />
+              </div>
+              <div class="col-12">
+                <button class="btn km-btn-primary w-100 py-2" onclick="getWeatherAdvisory()">
+                  <i class="bi bi-cloud-sun me-2"></i>Get Weather Advisory
+                </button>
+              </div>
+            </div>
+            <!-- Weather Widget -->
+            <div id="weatherWidget" class="weather-widget mt-4 d-none">
+              <div class="weather-card">
+                <div class="weather-icon" id="weatherIcon">🌤️</div>
+                <div class="weather-info">
+                  <div class="weather-location" id="weatherLocationDisplay"></div>
+                  <div class="weather-stats d-flex gap-3 mt-2">
+                    <div class="wstat" id="wTemp">
+                      <i class="bi bi-thermometer-half text-danger"></i> --°C
+                    </div>
+                    <div class="wstat" id="wHumidity">
+                      <i class="bi bi-droplet text-primary"></i> --%
+                    </div>
+                    <div class="wstat" id="wWind">
+                      <i class="bi bi-wind text-info"></i> -- m/s
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="weatherResult" class="result-box mt-3 d-none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MANDI PRICES SECTION ───────────────────────────────── -->
+      <div id="section-mandi" class="content-section">
+        <div class="panel-container">
+          <div class="panel-header">
+            <h5 class="mb-0"><span class="me-2">💰</span>Mandi Price Dashboard — MSP 2024-25</h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('chat')">
+              <i class="bi bi-arrow-left me-1"></i>Back
+            </button>
+          </div>
+          <div class="panel-body p-0">
+            <div class="mandi-filter p-3 border-bottom">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-6">
+                  <input type="text" class="form-control form-control-sm"
+                         id="mandiSearch" placeholder="🔍 Search crop..."
+                         oninput="filterMandi(this.value)" />
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" id="mandiSeason"
+                          onchange="loadMandiPrices(this.value)">
+                    <option value="kharif_2024_25">Kharif 2024-25</option>
+                    <option value="rabi_2024_25">Rabi 2024-25</option>
+                  </select>
+                </div>
+                <div class="col-md-3 text-end">
+                  <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+                    <i class="bi bi-check-circle me-1"></i>Govt Notified MSP
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div id="mandiTableWrapper" class="table-responsive">
+              <table class="table table-hover align-middle mb-0" id="mandiTable">
+                <thead class="table-success">
+                  <tr>
+                    <th>Crop</th>
+                    <th class="text-end">MSP (₹/Quintal)</th>
+                    <th class="text-end">Per Tonne (₹)</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody id="mandiTableBody">
+                  <tr><td colspan="4" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-success me-2"></div>Loading prices...
+                  </td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 border-top text-muted small">
+              <i class="bi bi-info-circle me-1"></i>
+              MSP (Minimum Support Price) as notified by CACP/Government of India for 2024-25.
+              Register on <a href="https://enam.gov.in" target="_blank">e-NAM</a> for better price discovery.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FARMER PROFILE SECTION ────────────────────────────── -->
+      <div id="section-profile" class="content-section">
+        <div class="panel-container">
+          <div class="panel-header">
+            <h5 class="mb-0"><span class="me-2">👨‍🌾</span>Farmer Profile</h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('chat')">
+              <i class="bi bi-arrow-left me-1"></i>Back to Chat
+            </button>
+          </div>
+          <div class="panel-body">
+            <p class="text-muted small mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              Your profile helps Krishi Mitra give personalised recommendations.
+              Data stays on your device only.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Full Name</label>
+                <input type="text" class="form-control" id="pName" placeholder="Ramesh Kumar" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mobile Number (optional)</label>
+                <input type="tel" class="form-control" id="pPhone" placeholder="9XXXXXXXXX" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">State</label>
+                <select class="form-select" id="pState">
+                  <option value="">Select State</option>
+                  <option>Punjab</option><option>Haryana</option>
+                  <option>Uttar Pradesh</option><option>Maharashtra</option>
+                  <option>Karnataka</option><option>Andhra Pradesh</option>
+                  <option>Telangana</option><option>Tamil Nadu</option>
+                  <option>Gujarat</option><option>Rajasthan</option>
+                  <option>Madhya Pradesh</option><option>West Bengal</option>
+                  <option>Bihar</option><option>Odisha</option>
+                  <option>Assam</option><option>Jharkhand</option>
+                  <option>Himachal Pradesh</option><option>Uttarakhand</option>
+                  <option>Chhattisgarh</option><option>Kerala</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">District / Village</label>
+                <input type="text" class="form-control" id="pDistrict" placeholder="e.g. Ludhiana" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Land Size (acres)</label>
+                <input type="number" class="form-control" id="pLand" placeholder="e.g. 5" min="0.1" step="0.5" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Soil Type</label>
+                <select class="form-select" id="pSoilType">
+                  <option value="">Select Soil</option>
+                  <option>Loam</option><option>Black</option>
+                  <option>Alluvial</option><option>Red Laterite</option>
+                  <option>Sandy</option><option>Clay</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Water Source</label>
+                <select class="form-select" id="pWaterSource">
+                  <option value="">Select Water</option>
+                  <option>Canal Irrigation</option>
+                  <option>Borewell</option>
+                  <option>Rainfed</option>
+                  <option>Drip/Sprinkler</option>
+                  <option>River / Tank</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Current Season</label>
+                <select class="form-select" id="pSeason">
+                  <option value="">Select Season</option>
+                  <option>Kharif 2024</option>
+                  <option>Rabi 2024-25</option>
+                  <option>Zaid 2025</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Main Crops</label>
+                <input type="text" class="form-control" id="pCrops"
+                       placeholder="e.g. Wheat, Rice, Cotton" />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Preferred Language</label>
+                <select class="form-select" id="pLanguage" onchange="setLanguage(this.value)">
+                  <option value="en">English</option>
+                  <option value="hi">हिंदी (Hindi)</option>
+                  <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                  <option value="te">తెలుగు (Telugu)</option>
+                  <option value="ta">தமிழ் (Tamil)</option>
+                  <option value="mr">मराठी (Marathi)</option>
+                  <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                  <option value="gu">ગુજરાતી (Gujarati)</option>
+                  <option value="bn">বাংলা (Bengali)</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <button class="btn km-btn-primary w-100 py-2" onclick="saveProfile()">
+                  <i class="bi bi-save me-2"></i>Save Profile & Personalise Chat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end col -->
+  </div><!-- end row -->
+</main>
+
+<!-- ═════════════════════ FOOTER ══════════════════════════════════ -->
+<footer class="km-footer mt-5 py-4">
+  <div class="container text-center">
+    <div class="mb-2 fw-semibold">🌱 Krishi Mitra — AI Smart Farming Advisor</div>
+    <div class="text-muted small mb-2">
+      Powered by <strong>IBM watsonx.ai</strong> + <strong>IBM Granite Models</strong> |
+      Built for Indian Farmers 🇮🇳
+    </div>
+    <div class="text-muted small">
+      Disclaimer: AI advisory is for guidance only.
+      Always verify recommendations with your local KVK or agriculture officer.
+    </div>
+  </div>
+</footer>
+
+<!-- ═════════════════════ LOADING OVERLAY ════════════════════════ -->
+<div class="loading-overlay d-none" id="loadingOverlay">
+  <div class="loading-spinner">
+    <div class="spinner-grow text-success" role="status"></div>
+    <div class="mt-2 text-success fw-semibold" id="loadingText">Analysing...</div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+  <div id="kmToast" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="kmToastMsg">Saved!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

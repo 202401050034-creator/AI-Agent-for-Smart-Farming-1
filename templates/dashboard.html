@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Krishi Mitra</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark km-navbar sticky-top">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span class="brand-icon">🌱</span>
+      <span class="brand-name fw-bold">Krishi Mitra</span>
+      <span class="brand-badge badge rounded-pill ms-1">Dashboard</span>
+    </a>
+    <div class="navbar-nav ms-auto d-flex flex-row gap-2">
+      <a class="nav-link" href="/"><i class="bi bi-chat-dots me-1"></i>Advisor</a>
+      <button class="btn btn-sm btn-outline-light" onclick="toggleDarkMode()">
+        <i class="bi bi-moon-stars" id="darkModeIcon"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="container my-4">
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <h4 class="fw-bold mb-1">🌾 Smart Farming Dashboard</h4>
+      <p class="text-muted mb-0">Real-time farm insights powered by IBM watsonx.ai</p>
+    </div>
+    <div class="col-auto">
+      <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle py-2 px-3">
+        <i class="bi bi-circle-fill text-success me-1" style="font-size:8px"></i>AI Online
+      </span>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="kpi-card">
+        <div class="kpi-icon bg-success-subtle text-success">🌾</div>
+        <div class="kpi-label">Recommended Crops</div>
+        <div class="kpi-value text-success">3 Crops</div>
+        <div class="kpi-sub">For current season</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="kpi-card">
+        <div class="kpi-icon bg-primary-subtle text-primary">💧</div>
+        <div class="kpi-label">Water Advisory</div>
+        <div class="kpi-value text-primary">Moderate</div>
+        <div class="kpi-sub">Irrigation needed</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="kpi-card">
+        <div class="kpi-icon bg-warning-subtle text-warning">💰</div>
+        <div class="kpi-label">Wheat MSP</div>
+        <div class="kpi-value text-warning">₹2,275</div>
+        <div class="kpi-sub">Per quintal 2024-25</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="kpi-card">
+        <div class="kpi-icon bg-danger-subtle text-danger">🌡️</div>
+        <div class="kpi-label">Soil Health</div>
+        <div class="kpi-value text-danger" id="dashSoilScore">--</div>
+        <div class="kpi-sub">Setup profile to check</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Seasonal Calendar -->
+    <div class="col-lg-8">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <i class="bi bi-calendar3 me-2 text-success"></i>Seasonal Crop Calendar
+        </div>
+        <div class="dash-card-body">
+          <div class="season-timeline">
+            <div class="season-row">
+              <div class="season-label kharif">Kharif</div>
+              <div class="season-bar-wrap">
+                <div class="season-months">
+                  <span class="month active">Jun</span><span class="month active">Jul</span>
+                  <span class="month active">Aug</span><span class="month active">Sep</span>
+                  <span class="month active">Oct</span><span class="month">Nov</span>
+                  <span class="month">Dec</span><span class="month">Jan</span>
+                  <span class="month">Feb</span><span class="month">Mar</span>
+                  <span class="month">Apr</span><span class="month">May</span>
+                </div>
+                <div class="crop-timeline-bars">
+                  <div class="ctbar ctbar-rice" title="Rice: Jun–Nov">
+                    <span>🌾 Rice</span>
+                  </div>
+                  <div class="ctbar ctbar-cotton" title="Cotton: May–Nov">
+                    <span>🌿 Cotton</span>
+                  </div>
+                  <div class="ctbar ctbar-soy" title="Soybean: Jun–Oct">
+                    <span>🫘 Soybean</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="season-row mt-3">
+              <div class="season-label rabi">Rabi</div>
+              <div class="season-bar-wrap">
+                <div class="crop-timeline-bars">
+                  <div class="ctbar ctbar-wheat rabi-bar" title="Wheat: Oct–Mar">
+                    <span>🌾 Wheat</span>
+                  </div>
+                  <div class="ctbar ctbar-mustard rabi-bar" title="Mustard: Oct–Feb">
+                    <span>🌻 Mustard</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Yield Profit Table -->
+          <div class="mt-4">
+            <h6 class="fw-semibold mb-3">
+              <i class="bi bi-graph-up text-success me-1"></i>
+              Estimated Yield & Profit (per acre)
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover">
+                <thead class="table-success">
+                  <tr>
+                    <th>Crop</th>
+                    <th>Yield (Q)</th>
+                    <th>Input Cost</th>
+                    <th>Revenue</th>
+                    <th>Net Profit</th>
+                    <th>Rating</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>🌾 Wheat</td><td>18–22</td>
+                    <td>₹18,000</td><td>₹40,950</td>
+                    <td class="text-success fw-semibold">~₹22,000</td>
+                    <td><span class="badge bg-success">★★★★</span></td>
+                  </tr>
+                  <tr>
+                    <td>🌾 Rice</td><td>20–25</td>
+                    <td>₹22,000</td><td>₹46,000</td>
+                    <td class="text-success fw-semibold">~₹24,000</td>
+                    <td><span class="badge bg-success">★★★★</span></td>
+                  </tr>
+                  <tr>
+                    <td>🌿 Cotton</td><td>8–12</td>
+                    <td>₹25,000</td><td>₹57,000</td>
+                    <td class="text-success fw-semibold">~₹32,000</td>
+                    <td><span class="badge bg-warning text-dark">★★★★★</span></td>
+                  </tr>
+                  <tr>
+                    <td>🫘 Soybean</td><td>10–14</td>
+                    <td>₹14,000</td><td>₹48,920</td>
+                    <td class="text-success fw-semibold">~₹34,000</td>
+                    <td><span class="badge bg-primary">★★★★</span></td>
+                  </tr>
+                  <tr>
+                    <td>🍅 Tomato</td><td>80–120</td>
+                    <td>₹30,000</td><td>₹80,000</td>
+                    <td class="text-success fw-semibold">~₹50,000</td>
+                    <td><span class="badge bg-danger">★★★★★</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: Schemes + IPM -->
+    <div class="col-lg-4">
+      <div class="dash-card mb-4">
+        <div class="dash-card-header">
+          <i class="bi bi-bank me-2 text-primary"></i>Government Schemes
+        </div>
+        <div class="dash-card-body p-0">
+          <div class="scheme-list">
+            <div class="scheme-item">
+              <div class="scheme-name">PM-KISAN</div>
+              <div class="scheme-desc">₹6,000/year income support</div>
+              <a href="https://pmkisan.gov.in" target="_blank" class="scheme-link">Apply →</a>
+            </div>
+            <div class="scheme-item">
+              <div class="scheme-name">PMFBY</div>
+              <div class="scheme-desc">Crop insurance at 2% premium</div>
+              <a href="https://pmfby.gov.in" target="_blank" class="scheme-link">Apply →</a>
+            </div>
+            <div class="scheme-item">
+              <div class="scheme-name">Kisan Credit Card</div>
+              <div class="scheme-desc">Credit at 4% interest rate</div>
+              <a href="https://www.nabard.org" target="_blank" class="scheme-link">Apply →</a>
+            </div>
+            <div class="scheme-item">
+              <div class="scheme-name">e-NAM</div>
+              <div class="scheme-desc">Online mandi trading platform</div>
+              <a href="https://enam.gov.in" target="_blank" class="scheme-link">Register →</a>
+            </div>
+            <div class="scheme-item">
+              <div class="scheme-name">Soil Health Card</div>
+              <div class="scheme-desc">Free soil testing every 2 years</div>
+              <a href="https://soilhealth.dac.gov.in" target="_blank" class="scheme-link">Check →</a>
+            </div>
+            <div class="scheme-item">
+              <div class="scheme-name">PMKSY</div>
+              <div class="scheme-desc">55% drip irrigation subsidy</div>
+              <a href="https://pmksy.gov.in" target="_blank" class="scheme-link">Apply →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IPM Alert Box -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <i class="bi bi-bug me-2 text-danger"></i>Seasonal Pest Alerts
+        </div>
+        <div class="dash-card-body">
+          <div class="alert-item alert-high">
+            <span class="alert-badge bg-danger">High</span>
+            <div>
+              <div class="fw-semibold">Stem Borer — Rice</div>
+              <div class="small text-muted">Monitor weekly; use pheromone traps</div>
+            </div>
+          </div>
+          <div class="alert-item alert-medium">
+            <span class="alert-badge bg-warning text-dark">Medium</span>
+            <div>
+              <div class="fw-semibold">Aphids — Wheat</div>
+              <div class="small text-muted">Dimethoate if ETL exceeded</div>
+            </div>
+          </div>
+          <div class="alert-item alert-low">
+            <span class="alert-badge bg-success">Low</span>
+            <div>
+              <div class="fw-semibold">Whitefly — Cotton</div>
+              <div class="small text-muted">Neem oil spray; monitor</div>
+            </div>
+          </div>
+          <button class="btn btn-sm km-btn-primary w-100 mt-2"
+                  onclick="window.location.href='/'">
+            <i class="bi bi-chat-dots me-1"></i>Ask Pest Management Advice
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MSP Comparison Chart (SVG-based) -->
+    <div class="col-12">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <i class="bi bi-bar-chart-fill me-2 text-warning"></i>
+          MSP Comparison 2024-25 (₹/Quintal)
+        </div>
+        <div class="dash-card-body">
+          <div class="msp-chart-container" id="mspChart">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+</main>
+
+<footer class="km-footer mt-5 py-4">
+  <div class="container text-center">
+    <div class="text-muted small">
+      🌱 Krishi Mitra Dashboard | Powered by IBM watsonx.ai + IBM Granite |
+      Data sources: CACP, ICAR, IMD
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
